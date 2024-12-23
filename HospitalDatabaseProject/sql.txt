@@ -1,0 +1,681 @@
+Creating tables:
+
+
+-- 1. Person Table
+CREATE TABLE "Person" (
+    "person_id" SERIAL PRIMARY KEY,
+    "first_name" VARCHAR(50),
+    "last_name" VARCHAR(50),
+    "date_of_birth" DATE,
+    "gender" CHAR(1),
+    "phone_number" VARCHAR(15),
+    "address" VARCHAR(255)
+);
+
+-- 2. Insurance Table
+CREATE TABLE "Insurance" (
+    "insurance_id" SERIAL PRIMARY KEY,
+    "insurance_company" VARCHAR(100),
+    "type" VARCHAR(50),
+    "discount" DECIMAL(5,2)
+);
+
+-- 3. Patient Table
+CREATE TABLE "Patient" (
+    "patient_id" SERIAL PRIMARY KEY,
+    "person_id" INT NOT NULL,
+    "insurance_id" INT NULL,
+    FOREIGN KEY ("person_id") REFERENCES "Person"("person_id"),
+    FOREIGN KEY ("insurance_id") REFERENCES "Insurance"("insurance_id")
+);
+
+-- 4. Staff Table
+CREATE TABLE "Staff" (
+    "staff_id" SERIAL PRIMARY KEY,
+    "person_id" INT NOT NULL,
+    "employment_date" DATE NOT NULL,
+    FOREIGN KEY ("person_id") REFERENCES "Person"("person_id")
+);
+
+-- 5. Doctor Table
+CREATE TABLE "Doctor" (
+    "staff_id" INT PRIMARY KEY,
+    "specialty" VARCHAR(50),
+    "license_number" VARCHAR(20),
+    FOREIGN KEY ("staff_id") REFERENCES "Staff"("staff_id")
+);
+
+-- 6. Nurse Table
+CREATE TABLE "Nurse" (
+    "staff_id" INT PRIMARY KEY,
+    "department" VARCHAR(50),
+    "shift" VARCHAR(20),
+    FOREIGN KEY ("staff_id") REFERENCES "Staff"("staff_id")
+);
+
+-- 7. Room Table
+CREATE TABLE "Room" (
+    "room_id" SERIAL PRIMARY KEY,
+    "availability" BOOLEAN DEFAULT TRUE
+);
+
+-- 8. Appointment Table
+CREATE TABLE "Appointment" (
+    "appointment_id" SERIAL PRIMARY KEY,
+    "patient_id" INT NOT NULL,
+    "staff_id" INT NOT NULL,
+    "date_time" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    "reason" VARCHAR(255),
+    "room_id" INT,
+    FOREIGN KEY ("patient_id") REFERENCES "Patient"("patient_id"),
+    FOREIGN KEY ("staff_id") REFERENCES "Staff"("staff_id"),
+    FOREIGN KEY ("room_id") REFERENCES "Room"("room_id")
+);
+
+-- 9. Billing Table
+CREATE TABLE "Billing" (
+    "bill_id" SERIAL PRIMARY KEY,
+    "appointment_id" INT NOT NULL,
+    "insurance_id" INT,
+    "amount" MONEY NOT NULL,
+    "payment_status" BOOLEAN NOT NULL,
+    FOREIGN KEY ("appointment_id") REFERENCES "Appointment"("appointment_id"),
+    FOREIGN KEY ("insurance_id") REFERENCES "Insurance"("insurance_id")
+);
+
+-- 10. Payment Table
+CREATE TABLE "Payment" (
+    "payment_id" SERIAL PRIMARY KEY,
+    "bill_id" INT NOT NULL,
+    "payment_date" DATE NOT NULL,
+    "amount_paid" MONEY NOT NULL,
+    "payment_method" VARCHAR(50),
+    FOREIGN KEY ("bill_id") REFERENCES "Billing"("bill_id")
+);
+
+-- 11. Medication Table
+CREATE TABLE "Medication" (
+    "medication_id" SERIAL PRIMARY KEY,
+    "name" VARCHAR(100),
+    "stock" INT NOT NULL,
+    "price" MONEY NOT NULL,
+);
+
+-- 12. Prescription Table
+CREATE TABLE "Prescription" (
+    "prescription_id" SERIAL PRIMARY KEY,
+    "patient_id" INT NOT NULL,
+    "date_prescribed" DATE NOT NULL,
+    FOREIGN KEY ("patient_id") REFERENCES "Patient"("patient_id")
+);
+
+-- 13. Prescribed_Medications Table
+CREATE TABLE "Prescribed_Medications" (
+    "prescription_id" INT NOT NULL,
+    "medication_id" INT NOT NULL,
+    PRIMARY KEY ("prescription_id", "medication_id"),
+    FOREIGN KEY ("prescription_id") REFERENCES "Prescription"("prescription_id"),
+    FOREIGN KEY ("medication_id") REFERENCES "Medication"("medication_id")
+);
+
+-- 14. Medical_Record Table
+CREATE TABLE "Medical_Record" (
+    "record_id" SERIAL PRIMARY KEY,
+    "patient_id" INT NOT NULL,
+    "diagnosis" VARCHAR(255),
+    "treatment_plan" TEXT,
+    "notes" TEXT,
+    FOREIGN KEY ("patient_id") REFERENCES "Patient"("patient_id")
+);
+
+-- 15. Treatment Table
+CREATE TABLE "Treatment" (
+    "treatment_id" SERIAL PRIMARY KEY,
+    "appointment_id" INT NOT NULL,
+    "procedure" VARCHAR(255),
+    "cost" MONEY NOT NULL,
+    FOREIGN KEY ("appointment_id") REFERENCES "Appointment"("appointment_id")
+);
+
+
+
+
+Populating tables:
+
+
+-- 1. Populate Person Table
+INSERT INTO "Person" (first_name, last_name, date_of_birth, gender, phone_number, address) VALUES
+('Chris', 'Miller', '1983-09-17', 'M', '555-0001', '101 Doctor St'),
+('Emily', 'Clark', '1992-07-08', 'F', '555-0002', '102 Nurse Ln'),
+('Laura', 'Taylor', '1991-11-11', 'F', '555-0003', '103 Medical Ave'),
+('John', 'Doe', '1980-05-15', 'M', '555-0004', '104 Health Blvd'),
+('Jane', 'Smith', '1985-09-20', 'F', '555-0005', '105 Care St'),
+('Mike', 'Johnson', '1978-03-10', 'M', '555-0006', '106 Wellness Ln'),
+('Sarah', 'Brown', '1995-04-30', 'F', '555-0007', '107 Hospital Rd'),
+('David', 'Wilson', '1980-12-25', 'M', '555-0008', '108 Clinic Dr'),
+('James', 'Taylor', '1989-07-22', 'M', '555-0009', '109 Surgeon Ct'),
+('Anna', 'Garcia', '1990-02-14', 'F', '555-0010', '110 ER Ln'),
+('Steve', 'Anderson', '1985-11-08', 'M', '555-0011', '111 ICU Rd'),
+('Linda', 'Harris', '1993-01-25', 'F', '555-0012', '112 Surgery St'),
+('Paul', 'Martinez', '1982-04-11', 'M', '555-0013', '113 Therapy Blvd'),
+('Jessica', 'Lopez', '1994-06-18', 'F', '555-0014', '114 Pharmacy Ct'),
+('Tom', 'White', '1990-03-23', 'M', '555-0015', '115 Oncology Ave'),
+('Olivia', 'King', '1992-12-12', 'F', '555-0016', '116 Pediatric Ln'),
+('Nathan', 'Scott', '1987-08-09', 'M', '555-0017', '117 Trauma Rd'),
+('Sophia', 'Evans', '1996-09-30', 'F', '555-0018', '118 Recovery Dr'),
+('Ethan', 'Brooks', '1988-02-19', 'M', '555-0019', '119 Maternity St'),
+('Isabella', 'Gray', '1991-10-28', 'F', '555-0020', '120 ER Blvd');
+
+-- 2. Populate Staff Table
+INSERT INTO "Staff" (person_id, employment_date) VALUES
+(1, '2010-06-15'), (2, '2015-03-20'), (3, '2017-01-10'),
+(4, '2012-05-25'), (5, '2013-08-19'), (6, '2011-11-01'),
+(7, '2014-06-30'), (8, '2016-09-14'), (9, '2018-02-07'),
+(10, '2019-10-12'), (11, '2014-03-15'), (12, '2017-07-18'),
+(13, '2018-11-22'), (14, '2020-01-05'), (15, '2019-04-09'),
+(16, '2015-12-03'), (17, '2016-06-21'), (18, '2017-09-11'),
+(19, '2018-01-13'), (20, '2021-03-19');
+
+-- 3. Populate Doctor Table
+INSERT INTO "Doctor" (staff_id, specialty, license_number) VALUES
+(1, 'Cardiology', 'DOC1001'), (2, 'Neurology', 'DOC1002'),
+(3, 'Orthopedics', 'DOC1003'), (4, 'Pediatrics', 'DOC1004'),
+(5, 'Radiology', 'DOC1005'), (6, 'Oncology', 'DOC1006'),
+(7, 'Dermatology', 'DOC1007'), (8, 'Surgery', 'DOC1008'),
+(9, 'Psychiatry', 'DOC1009'), (10, 'Gastroenterology', 'DOC1010');
+
+-- 4. Populate Nurse Table
+INSERT INTO "Nurse" (staff_id, department, shift) VALUES
+(11, 'Emergency', 'Day'), (12, 'ICU', 'Night'),
+(13, 'Pediatrics', 'Day'), (14, 'Maternity', 'Night'),
+(15, 'Trauma', 'Day'), (16, 'Oncology', 'Night'),
+(17, 'Recovery', 'Day'), (18, 'Surgery', 'Night'),
+(19, 'Pharmacy', 'Day'), (20, 'Therapy', 'Night');
+
+-- 5. Populate Room Table
+INSERT INTO "Room" (availability) VALUES
+(TRUE), (TRUE), (TRUE), (TRUE), (TRUE), (TRUE), (TRUE), (TRUE), (TRUE), (TRUE),
+(TRUE), (TRUE), (TRUE), (TRUE), (TRUE), (TRUE), (TRUE), (TRUE), (TRUE), (TRUE);
+
+-- 6. Populate Medication Table
+INSERT INTO "Medication" (name, stock, price) VALUES
+('Paracetamol', 500, 5.00),
+('Ibuprofen', 300, 8.50),
+('Amoxicillin', 200, 12.00),
+('Aspirin', 150, 4.00),
+('Metformin', 250, 15.00),
+('Atorvastatin', 100, 20.00),
+('Omeprazole', 350, 10.00),
+('Losartan', 180, 8.00),
+('Clopidogrel', 120, 18.00),
+('Hydrochlorothiazide', 400, 7.50);
+
+-- 7. Populate Insurance Table
+INSERT INTO "Insurance" (insurance_company, type, discount) VALUES
+('HealthPlus', 'Full Coverage', 20.00),
+('LifeCare', 'Partial Coverage', 15.00),
+('MediAssist', 'Emergency-only', 10.00),
+('WellnessCorp', 'Basic Plan', 5.00),
+('SecureHealth', 'Premium Plan', 25.00);
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- Stored procedures
+
+--Create patient procedure
+CREATE OR REPLACE PROCEDURE add_patient(
+    IN p_first_name VARCHAR,
+    IN p_last_name VARCHAR,
+    IN p_date_of_birth DATE,
+    IN p_gender CHAR(1),
+    IN p_phone_number VARCHAR,
+    IN p_address VARCHAR,
+    IN p_insurance_company VARCHAR DEFAULT NULL
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_person_id INT;
+    v_insurance_id INT;
+BEGIN
+    -- Insert into Person table
+    INSERT INTO "Person" (first_name, last_name, date_of_birth, gender, phone_number, address)
+    VALUES (p_first_name, p_last_name, p_date_of_birth, p_gender, p_phone_number, p_address)
+    RETURNING person_id INTO v_person_id;
+
+    -- Handle Insurance
+    IF p_insurance_company IS NOT NULL THEN
+        -- Check if the insurance already exists
+        SELECT insurance_id INTO v_insurance_id
+        FROM "Insurance"
+        WHERE insurance_company = p_insurance_company;
+
+        -- If not found, insert new insurance company with default type and discount
+        IF NOT FOUND THEN
+            INSERT INTO "Insurance" (insurance_company, type, discount)
+            VALUES (p_insurance_company, 'Default Type', 10.00)
+            RETURNING insurance_id INTO v_insurance_id;
+        END IF;
+    ELSE
+        v_insurance_id := NULL;
+    END IF;
+
+    -- Insert into Patient table
+    INSERT INTO "Patient" (person_id, insurance_id)
+    VALUES (v_person_id, v_insurance_id);
+END;
+$$;
+
+   
+
+
+-- Create the update procedure
+CREATE OR REPLACE PROCEDURE update_patient(
+    IN p_patient_id INT,
+    IN p_first_name VARCHAR,
+    IN p_last_name VARCHAR,
+    IN p_date_of_birth DATE,
+    IN p_gender CHAR(1),
+    IN p_phone_number VARCHAR,
+    IN p_address VARCHAR,
+    IN p_insurance_company VARCHAR DEFAULT NULL
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_person_id INT;
+    v_insurance_id INT;
+BEGIN
+    -- Retrieve person_id from Patient table
+    SELECT person_id INTO v_person_id FROM "Patient" WHERE patient_id = p_patient_id;
+
+    -- Update Person table
+    UPDATE "Person"
+    SET
+        first_name = p_first_name,
+        last_name = p_last_name,
+        date_of_birth = p_date_of_birth,
+        gender = p_gender,
+        phone_number = p_phone_number,
+        address = p_address
+    WHERE person_id = v_person_id;
+
+    -- Handle Insurance
+    IF p_insurance_company IS NOT NULL THEN
+        -- Check if the insurance already exists
+        SELECT insurance_id INTO v_insurance_id
+        FROM "Insurance"
+        WHERE insurance_company = p_insurance_company;
+
+
+    ELSE
+        v_insurance_id := NULL;
+    END IF;
+
+    -- Update Patient table
+    UPDATE "Patient"
+    SET insurance_id = v_insurance_id
+    WHERE patient_id = p_patient_id;
+END;
+$$;
+
+-- Create the search function
+CREATE OR REPLACE FUNCTION search_patients(
+    p_first_name VARCHAR,
+    p_last_name VARCHAR
+)
+RETURNS TABLE(
+    "Patient ID" INT,
+    "First Name" VARCHAR,
+    "Last Name" VARCHAR,
+    "Date of Birth" DATE,
+    "Gender" CHAR(1),
+    "Phone Number" VARCHAR,
+    "Address" VARCHAR,
+    "Insurance Company" VARCHAR
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        p.patient_id AS "Patient ID",
+        pr.first_name AS "First Name",
+        pr.last_name AS "Last Name",
+        pr.date_of_birth AS "Date of Birth",
+        pr.gender AS "Gender",
+        pr.phone_number AS "Phone Number",
+        pr.address AS "Address",
+        COALESCE(i.insurance_company, 'None') AS "Insurance Company"
+    FROM 
+        "Patient" p
+    INNER JOIN 
+        "Person" pr ON p.person_id = pr.person_id
+    LEFT JOIN 
+        "Insurance" i ON p.insurance_id = i.insurance_id
+    WHERE
+        (pr.first_name ILIKE '%' || p_first_name || '%' OR p_first_name IS NULL)
+        AND 
+        (pr.last_name ILIKE '%' || p_last_name || '%' OR p_last_name IS NULL)
+    ORDER BY 
+        pr.last_name, pr.first_name;
+END;
+$$;
+
+
+CREATE OR REPLACE PROCEDURE add_appointment(
+    p_patient_id INT,
+    p_staff_id INT,
+    p_date_time TIMESTAMP,
+    p_reason VARCHAR
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_room_id INT;
+BEGIN
+    -- Find an available room
+    SELECT room_id INTO v_room_id
+    FROM "Room"
+    WHERE availability = TRUE
+    ORDER BY room_id
+    LIMIT 1;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'No rooms available for the appointment.';
+    END IF;
+
+    -- Insert the appointment
+    INSERT INTO "Appointment" (patient_id, staff_id, date_time, reason, room_id)
+    VALUES (p_patient_id, p_staff_id, p_date_time, p_reason, v_room_id);
+
+    -- Mark the room as unavailable
+    UPDATE "Room"
+    SET availability = FALSE
+    WHERE room_id = v_room_id;
+END;
+$$;
+
+
+CREATE OR REPLACE PROCEDURE update_appointment(
+    p_appointment_id INT,
+    p_patient_id INT,
+    p_staff_id INT,
+    p_date_time TIMESTAMP,
+    p_reason VARCHAR
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Update the appointment details
+    UPDATE "Appointment"
+    SET
+        patient_id = p_patient_id,
+        staff_id = p_staff_id,
+        date_time = p_date_time,
+        reason = p_reason
+    WHERE
+        appointment_id = p_appointment_id;
+END;
+$$;
+
+
+CREATE OR REPLACE PROCEDURE delete_appointment(
+    p_appointment_id INT
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_room_id INT;
+BEGIN
+    -- Get the room associated with the appointment
+    SELECT room_id INTO v_room_id FROM "Appointment" WHERE appointment_id = p_appointment_id;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Appointment not found.';
+    END IF;
+
+    -- Delete the appointment
+    DELETE FROM "Appointment" WHERE appointment_id = p_appointment_id;
+
+    -- Mark the room as available
+    UPDATE "Room" SET availability = TRUE WHERE room_id = v_room_id;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE create_medical_record(
+    p_patient_id INT,
+    p_diagnosis VARCHAR,
+    p_treatment_plan TEXT,
+    p_notes TEXT
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO "Medical_Record" (patient_id, diagnosis, treatment_plan, notes)
+    VALUES (p_patient_id, p_diagnosis, p_treatment_plan, p_notes);
+END;
+$$;
+
+  
+  
+
+CREATE OR REPLACE PROCEDURE add_prescription(
+    p_patient_id INT,
+    p_date_prescribed DATE,
+    p_medications INT[] -- An array of medication IDs
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_prescription_id INT;
+    med_id INT;
+BEGIN
+    -- Insert into Prescription table
+    INSERT INTO "Prescription" (patient_id, date_prescribed)
+    VALUES (p_patient_id, p_date_prescribed)
+    RETURNING prescription_id INTO v_prescription_id;
+
+    -- Insert into Prescribed_Medications table
+    FOREACH med_id IN ARRAY p_medications
+    LOOP
+        INSERT INTO "Prescribed_Medications" (prescription_id, medication_id)
+        VALUES (v_prescription_id, med_id);
+    END LOOP;
+END;
+$$;
+   
+
+CREATE OR REPLACE PROCEDURE generate_bill(
+    p_appointment_id INT,
+    p_amount MONEY
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_insurance_id INT;
+    v_patient_id INT;
+BEGIN
+    -- Get patient ID from appointment
+    SELECT patient_id INTO v_patient_id FROM "Appointment" WHERE appointment_id = p_appointment_id;
+    
+    -- Get insurance ID for the patient
+    SELECT insurance_id INTO v_insurance_id FROM "Patient" WHERE patient_id = v_patient_id;
+
+    -- Insert into Billing table
+    INSERT INTO "Billing" (appointment_id, insurance_id, amount, payment_status)
+    VALUES (p_appointment_id, v_insurance_id, p_amount, FALSE);
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE record_payment(
+    p_bill_id INT,
+    p_payment_date DATE,
+    p_amount_paid MONEY,
+    p_payment_method VARCHAR
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Insert into Payment table
+    INSERT INTO "Payment" (bill_id, payment_date, amount_paid, payment_method)
+    VALUES (p_bill_id, p_payment_date, p_amount_paid, p_payment_method);
+
+    -- Update payment status in Billing table if fully paid
+    UPDATE "Billing"
+    SET payment_status = TRUE
+    WHERE bill_id = p_bill_id AND amount <= (
+        SELECT SUM(amount_paid) FROM "Payment" WHERE bill_id = p_bill_id
+    );
+END;
+$$;
+
+
+-- Function to update medication stock
+CREATE OR REPLACE FUNCTION update_medication_stock()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    UPDATE "Medication"
+    SET stock = stock - NEW.quantity
+    WHERE medication_id = NEW.medication_id;
+
+    RETURN NEW;
+END;
+$$;
+
+-- Trigger on Prescribed_Medications table
+CREATE TRIGGER trg_UpdateMedicationStock
+AFTER INSERT ON "Prescribed_Medications"
+FOR EACH ROW
+EXECUTE FUNCTION update_medication_stock();
+
+-- Function to generate bill
+CREATE OR REPLACE FUNCTION auto_generate_bill()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    PERFORM generate_bill(NEW.appointment_id, NEW.cost);
+    RETURN NEW;
+END;
+$$;
+
+-- Trigger on Treatment table
+CREATE TRIGGER trg_GenerateBill
+AFTER INSERT ON "Treatment"
+FOR EACH ROW
+EXECUTE FUNCTION auto_generate_bill();
+
+CREATE OR REPLACE FUNCTION update_payment_status()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE "Billing"
+    SET payment_status = TRUE
+    WHERE bill_id = NEW.bill_id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER payment_insert_trigger
+AFTER INSERT ON "Payment"
+FOR EACH ROW
+EXECUTE FUNCTION update_payment_status();
+
+CREATE OR REPLACE FUNCTION create_billing_on_appointment()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_insurance_id INT;
+    v_discount DECIMAL(5,2) := 0.00;
+    v_amount DECIMAL(10,2) := 100.00; -- Base amount, modify as needed
+BEGIN
+    -- Retrieve the patient's insurance ID
+    SELECT insurance_id INTO v_insurance_id
+    FROM "Patient"
+    WHERE patient_id = NEW.patient_id;
+
+    -- If the patient has insurance, retrieve the discount
+    IF v_insurance_id IS NOT NULL THEN
+        SELECT discount INTO v_discount
+        FROM "Insurance"
+        WHERE insurance_id = v_insurance_id;
+    END IF;
+
+    -- Calculate the final amount after applying discount
+    v_amount := v_amount - (v_amount * (v_discount / 100));
+
+    -- Insert the billing record
+    INSERT INTO "Billing" (appointment_id, insurance_id, amount, payment_status)
+    VALUES (NEW.appointment_id, v_insurance_id, v_amount, FALSE);
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create the trigger
+CREATE TRIGGER trg_create_billing
+AFTER INSERT ON "Appointment"
+FOR EACH ROW
+EXECUTE FUNCTION create_billing_on_appointment();
+
+-- Create the trigger function
+CREATE OR REPLACE FUNCTION update_billing_on_prescription()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_patient_id INT;
+    v_medication_price DECIMAL(10,2);
+    v_bill_id INT;
+BEGIN
+    -- Retrieve the patient_id from the Prescription table
+    SELECT patient_id INTO v_patient_id
+    FROM "Prescription"
+    WHERE prescription_id = NEW.prescription_id;
+
+    -- Retrieve the price of the prescribed medication
+    SELECT price INTO v_medication_price
+    FROM "Medication"
+    WHERE medication_id = NEW.medication_id;
+
+    -- Find the active Billing record for the patient (payment_status = FALSE)
+    SELECT bill_id INTO v_bill_id
+    FROM "Billing"
+    WHERE appointment_id = (
+        SELECT appointment_id
+        FROM "Appointment"
+        WHERE patient_id = v_patient_id
+        ORDER BY appointment_id DESC
+        LIMIT 1
+    )
+    AND payment_status = FALSE
+    LIMIT 1;
+
+    -- If an active bill is found, update the amount
+    IF v_bill_id IS NOT NULL THEN
+        UPDATE "Billing"
+        SET amount = amount + v_medication_price
+        WHERE bill_id = v_bill_id;
+    ELSE
+        RAISE NOTICE 'No active billing record found for patient_id %', v_patient_id;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE TRIGGER trg_update_billing
+AFTER INSERT ON "Prescribed_Medications"
+FOR EACH ROW
+EXECUTE FUNCTION update_billing_on_prescription();
