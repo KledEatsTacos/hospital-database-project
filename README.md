@@ -1,4 +1,14 @@
-This is my Database Management Systems project. It is quite bad, I know, but I made it in a few days only, so...
+# Hospital Database System
 
-It is basically a hospital system where you can add patients, give them appointments, and simulate billing and payments
-The SQL code is included in the solution, in a .txt file named sql.txt. and the interface was made with C# (My most hated language)
+This is my Database Management Systems project. It is a hospital management system where you can add patients, schedule appointments, and simulate billing and payments. 
+
+## Features
+- Add and manage patient records.
+- Schedule and manage appointments.
+- Simulate billing and payments.
+
+## Notes
+- The SQL code is included in the solution in a file named `sql.txt`.
+- The interface is built with C#.
+
+This project was created in a short timeframe, how very unprofessional of me...
